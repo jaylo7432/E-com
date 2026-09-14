@@ -4,14 +4,14 @@ import Link from "next/link";
 
 export default function Admin() {
   const [products, setProducts] = useState([]);
-  const [form, setForm] = useState({ name: "", price: "", description: "", image: "", stock: "" });
+  const [form, setForm] = useState({ name: "", price: "", description: "", image: "", stock: "", category: "" });
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
 
   const loadProducts = () => {
-    fetch("/api/products")
+    fetch("/api/products", { cache: "no-store" })
       .then((res) => res.json())
       .then(setProducts);
   };
@@ -21,7 +21,7 @@ export default function Admin() {
   }, []);
 
   const resetForm = () => {
-    setForm({ name: "", price: "", description: "", image: "", stock: "" });
+    setForm({ name: "", price: "", description: "", image: "", stock: "", category: "" });
     setEditingId(null);
   };
 
@@ -62,6 +62,7 @@ export default function Admin() {
       description: form.description,
       image: form.image,
       stock: Number(form.stock) || 0,
+      category: form.category.trim() || "General",
     };
 
     const url = editingId ? `/api/products/${editingId}` : "/api/products";
@@ -93,6 +94,7 @@ export default function Admin() {
       description: p.description || "",
       image: p.image || "",
       stock: String(p.stock ?? 0),
+      category: p.category || "",
     });
   };
 
@@ -135,13 +137,17 @@ export default function Admin() {
             onChange={(e) => setForm({ ...form, price: e.target.value })}
             required
           />
+          <input
+            placeholder="Category (e.g. Clothing, Electronics)"
+            value={form.category}
+            onChange={(e) => setForm({ ...form, category: e.target.value })}
+          />
           <textarea
             placeholder="Product description"
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
           />
 
-          {/* Image upload section */}
           <label className="upload-label">
             {uploading ? "Uploading..." : "Choose image from device"}
             <input
@@ -182,7 +188,7 @@ export default function Admin() {
               <img src={p.image || "https://via.placeholder.com/60"} alt={p.name} />
               <div className="admin-product-info">
                 <strong>{p.name}</strong>
-                <span>{p.price.toLocaleString()} baht | Stock: {p.stock}</span>
+                <span>{p.price.toLocaleString()} baht | Stock: {p.stock} | {p.category || "General"}</span>
               </div>
               <button className="edit-btn" onClick={() => handleEditClick(p)}>
                 Edit

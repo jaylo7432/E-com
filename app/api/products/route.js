@@ -3,6 +3,8 @@ import Product from "@/models/Product";
 import { verifyToken } from "@/middleware/auth";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   await connectDB();
   const products = await Product.find().sort({ createdAt: -1 });

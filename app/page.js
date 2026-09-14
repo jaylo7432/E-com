@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
@@ -10,11 +10,18 @@ export default function Home() {
   const [products, setProducts] = useState([]);
   const [loggedIn, setLoggedIn] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [toast, setToast] = useState("");
+  const [loadingProducts, setLoadingProducts] = useState(true);
 
   useEffect(() => {
-    fetch("/api/products")
+    fetch("/api/products", { cache: "no-store" })
       .then((res) => res.json())
-      .then(setProducts);
+      .then((data) => {
+        setProducts(data);
+        setLoadingProducts(false);
+      });
 
     fetch("/api/auth/me")
       .then((res) => res.json())
@@ -24,6 +31,12 @@ export default function Home() {
       });
   }, []);
 
+  const handleAddToCart = (product) => {
+    addToCart(product);
+    setToast(`Added "${product.name}" to cart`);
+    setTimeout(() => setToast(""), 2000);
+  };
+
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     setLoggedIn(false);
@@ -31,13 +44,29 @@ export default function Home() {
     router.refresh();
   };
 
+  const categories = useMemo(() => {
+    const unique = new Set(products.map((p) => p.category || "General"));
+    return ["All", ...Array.from(unique)];
+  }, [products]);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      const matchCategory =
+        category === "All" || (p.category || "General") === category;
+      const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
+      return matchCategory && matchSearch;
+    });
+  }, [products, search, category]);
+
   return (
     <div className="container">
       <nav className="navbar">
         <h1>🛍️ My Shop</h1>
         <div>
           <Link href="/cart">🛒 Cart ({totalItems})</Link>
-          {!checkingAuth && loggedIn && <Link href="/admin">Edit Products</Link>}
+          {!checkingAuth && loggedIn && (
+            <Link href="/admin">Manage Products</Link>
+          )}
           {!checkingAuth && loggedIn && (
             <button className="logout-btn" onClick={handleLogout}>
               Logout
@@ -48,17 +77,62 @@ export default function Home() {
         </div>
       </nav>
 
-      <div className="product-grid">
-        {products.map((p) => (
-          <div className="product-card" key={p._id}>
-            <img src={p.image || "https://via.placeholder.com/200"} alt={p.name} />
-            <h3>{p.name}</h3>
-            <p className="price">{p.price.toLocaleString()} bath</p>
-            <p className="desc">{p.description}</p>
-            <button onClick={() => addToCart(p)}>add to cart</button>
-          </div>
-        ))}
+      <div className="filter-bar">
+        <input
+          className="search-input"
+          placeholder="🔍 Search products..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <select
+          className="category-select"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          {categories.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
       </div>
+
+      <div className="product-grid">
+        {!loadingProducts &&
+          filteredProducts.map((p) => (
+            <div className="product-card" key={p._id}>
+              <img
+                src={p.image || "https://via.placeholder.com/200"}
+                alt={p.name}
+              />
+              <span className="category-tag">{p.category || "General"}</span>
+              <h3>{p.name}</h3>
+              <p className="price">{p.price.toLocaleString()} baht</p>
+              <p className="desc">{p.description}</p>
+              <button onClick={() => handleAddToCart(p)}>Add to Cart</button>
+            </div>
+          ))}
+
+        {!loadingProducts && filteredProducts.length === 0 && (
+          <p>No products match your search.</p>
+        )}
+
+        {loadingProducts &&
+          Array.from({ length: 4 }).map((_, i) => (
+            <div className="skeleton-card" key={i}>
+              <div className="skeleton-shimmer skeleton-img" />
+              <div className="skeleton-shimmer skeleton-line" />
+              <div className="skeleton-shimmer skeleton-line short" />
+            </div>
+          ))}
+      </div>
+
+      {toast && (
+        <div className="toast">
+          <span className="toast-icon">✓</span>
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
