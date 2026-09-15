@@ -7,7 +7,26 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   await connectDB();
-  const products = await Product.find().sort({ createdAt: -1 });
+  const products = await Product.aggregate([
+    { $sort: { createdAt: -1 } },
+    {
+      $lookup: {
+        from: "reviews",
+        localField: "_id",
+        foreignField: "product",
+        as: "reviews",
+      },
+    },
+    {
+      $addFields: {
+        avgRating: {
+          $cond: [{ $gt: [{ $size: "$reviews" }, 0] }, { $avg: "$reviews.rating" }, 0],
+        },
+        reviewCount: { $size: "$reviews" },
+      },
+    },
+    { $project: { reviews: 0 } },
+  ]);
   return NextResponse.json(products);
 }
 

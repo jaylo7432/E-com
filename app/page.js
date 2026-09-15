@@ -101,12 +101,19 @@ export default function Home() {
         {!loadingProducts &&
           filteredProducts.map((p) => (
             <div className="product-card" key={p._id}>
-              <img
-                src={p.image || "https://via.placeholder.com/200"}
-                alt={p.name}
-              />
+
+            <Link href={`/product/${p._id}`} className="product-link">
+              <img src={p.image || "https://via.placeholder.com/200"} alt={p.name} />
               <span className="category-tag">{p.category || "General"}</span>
               <h3>{p.name}</h3>
+              {p.reviewCount > 0 && (
+                <p className="card-rating">
+                  {"★".repeat(Math.round(p.avgRating))}
+                  {"☆".repeat(5 - Math.round(p.avgRating))} ({p.reviewCount})
+                </p>
+              )}
+              
+            </Link>
               <p className="price">{p.price.toLocaleString()} baht</p>
               <p className="desc">{p.description}</p>
               <button onClick={() => handleAddToCart(p)}>Add to Cart</button>
