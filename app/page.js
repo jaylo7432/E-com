@@ -6,7 +6,7 @@ import { useCart } from "@/context/CartContext";
 
 export default function Home() {
   const router = useRouter();
-  const { addToCart, totalItems } = useCart();
+  const { addToCart, totalItems,clearCartOnLogout } = useCart();
   const [products, setProducts] = useState([]);
   const [loggedIn, setLoggedIn] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -40,6 +40,7 @@ export default function Home() {
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     setLoggedIn(false);
+    clearCartOnLogout();
     router.push("/");
     router.refresh();
   };
@@ -64,6 +65,9 @@ export default function Home() {
         <h1>🛍️ My Shop</h1>
         <div>
           <Link href="/cart">🛒 Cart ({totalItems})</Link>
+          {!checkingAuth && loggedIn && (
+            <Link href="/profile">My Profile</Link>
+          )}
           {!checkingAuth && loggedIn && (
             <Link href="/admin">Manage Products</Link>
           )}

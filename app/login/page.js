@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useCart } from "@/context/CartContext";
 
 export default function Login() {
   const router = useRouter();
+  const { refreshCartUser } = useCart();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
@@ -17,6 +19,7 @@ export default function Login() {
     });
     const data = await res.json();
     if (!res.ok) return setError(data.error);
+    refreshCartUser();
     router.push("/");
   };
 
