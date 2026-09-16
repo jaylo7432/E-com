@@ -7,6 +7,8 @@ export default function CartPage() {
   const { cart, removeFromCart, updateQty, clearCart, totalPrice } = useCart();
   const [placing, setPlacing] = useState(false);
   const [orderMsg, setOrderMsg] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("Cash on Delivery");
+  const [showPayment, setShowPayment] = useState(false);
 
   const handleCheckout = async () => {
     setPlacing(true);
@@ -24,6 +26,7 @@ export default function CartPage() {
           image: item.image,
         })),
         total: totalPrice,
+        paymentMethod,
       }),
     });
 
@@ -34,6 +37,7 @@ export default function CartPage() {
       return;
     }
     clearCart();
+    setShowPayment(false);
     setOrderMsg("Order placed successfully! check your profile for order history.");
   };
 
@@ -45,6 +49,8 @@ export default function CartPage() {
           <Link href="/">Home</Link>
         </div>
       </nav>
+
+      {orderMsg && <p className="order-msg">{orderMsg}</p>}
 
       {cart.length === 0 ? (
         <p className="empty-cart">There are no items in the cart</p>
@@ -74,10 +80,59 @@ export default function CartPage() {
           <div className="cart-summary">
             <h2>total</h2>
             <p className="total-price">total: {totalPrice.toLocaleString()} bath</p>
-            {orderMsg && <p className="order-msg">{orderMsg}</p>}
-            <button className="checkout-btn" onClick={handleCheckout} disabled={placing}>
-              {placing ? "Placing order..." : "Checkout"}
-            </button>
+
+            {!showPayment && (
+              <button className="checkout-btn" onClick={() => setShowPayment(true)}>
+                Proceed to Checkout
+              </button>
+            )}
+
+            {showPayment && (
+              <div className="payment-box">
+                <h3>Select Payment Method</h3>
+
+                <label className="payment-option">
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="Cash on Delivery"
+                    checked={paymentMethod === "Cash on Delivery"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  />
+                  💵 Cash on Delivery
+                </label>
+
+                <label className="payment-option">
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="Bank Transfer"
+                    checked={paymentMethod === "Bank Transfer"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  />
+                  🏦 Bank Transfer
+                </label>
+
+                {paymentMethod === "Bank Transfer" && (
+                  <div className="bank-info">
+                    <p>Bank: LVB digiBank</p>
+                    <p>Account No: 123-4-56789-0</p>
+                    <p>Account Name: My Shop Co., Ltd.</p>
+                  </div>
+                )}
+
+                <button className="checkout-btn" onClick={handleCheckout} disabled={placing}>
+                  {placing ? "Placing order..." : `Confirm Order (${paymentMethod})`}
+                </button>
+                <button
+                  type="button"
+                  className="cancel-btn"
+                  onClick={() => setShowPayment(false)}
+                >
+                  Back
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

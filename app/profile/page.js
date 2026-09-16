@@ -72,10 +72,12 @@ export default function Profile() {
               <span className="order-date">
                 {new Date(order.createdAt).toLocaleString()}
               </span>
-
-              <span className="Order-total">
-                {order.total.toLocaleString()} Bath
-              </span>
+              <span className="order-total">{order.total.toLocaleString()} baht</span>
+            </div>
+            
+            <div className="order-meta">
+              <span className="order-badge">{order.paymentMethod}</span>
+              <span className="order-badge status">{order.status}</span>
             </div>
 
             <div className="order-items">
