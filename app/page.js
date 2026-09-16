@@ -72,6 +72,10 @@ export default function Home() {
             <Link href="/admin">Manage Products</Link>
           )}
           {!checkingAuth && loggedIn && (
+            <Link href="/admin/orders">All Orders</Link>
+          )}
+
+          {!checkingAuth && loggedIn && (
             <button className="logout-btn" onClick={handleLogout}>
               Logout
             </button>

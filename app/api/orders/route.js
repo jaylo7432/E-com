@@ -1,5 +1,6 @@
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
+import User from "@/models/User";
 import { verifyToken } from "@/middleware/auth";
 import { NextResponse } from "next/server";
 
@@ -12,7 +13,14 @@ export async function GET(req) {
     }
 
     await connectDB();
-    const orders = await Order.find({ user: authUser.id }).sort({ createdAt: -1 });
+
+    const { searchParams } = new URL(req.url);
+    const viewAll = searchParams.get("all") === "true";
+
+    const filter = viewAll ? {} : { user: authUser.id };
+    const orders = await Order.find(filter)
+      .populate("user", "name email")
+      .sort({ createdAt: -1 });
 
     return NextResponse.json(orders);
 }
@@ -34,6 +42,7 @@ export async function POST(req) {
         user: authUser.id,
         items: body.items,
         total: body.total,
+        paymentMethod: body.paymentMethod || "Cash on Delivery",
     });
 
     return NextResponse.json(order, { status: 201 });
