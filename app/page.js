@@ -9,6 +9,7 @@ export default function Home() {
   const { addToCart, totalItems,clearCartOnLogout } = useCart();
   const [products, setProducts] = useState([]);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
@@ -27,6 +28,7 @@ export default function Home() {
       .then((res) => res.json())
       .then((data) => {
         setLoggedIn(data.loggedIn);
+        setUserRole(data.loggedIn ? data.user.role : null);
         setCheckingAuth(false);
       });
   }, []);
@@ -68,10 +70,10 @@ export default function Home() {
           {!checkingAuth && loggedIn && (
             <Link href="/profile">My Profile</Link>
           )}
-          {!checkingAuth && loggedIn && (
+          {!checkingAuth && loggedIn && userRole === "admin" && (
             <Link href="/admin">Manage Products</Link>
           )}
-          {!checkingAuth && loggedIn && (
+          {!checkingAuth && loggedIn && userRole === "admin" && (
             <Link href="/admin/orders">All Orders</Link>
           )}
 

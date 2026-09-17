@@ -1,8 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function Admin() {
+  const router = useRouter();
+  const [authChecked,setAuthChecked] = useState(false);
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState({ name: "", price: "", description: "", image: "", stock: "", category: "" });
   const [editingId, setEditingId] = useState(null);
@@ -17,6 +20,15 @@ export default function Admin() {
   };
 
   useEffect(() => {
+    fetch("/api/auth/me")
+    .then((res) => res.json())
+    .then((data) =>{
+      if (!data.loggedIn || data.user.role !== "admin") {
+        router.push("/");
+        return;
+      }
+      setAuthChecked(true);
+    });
     loadProducts();
   }, []);
 
@@ -109,6 +121,14 @@ export default function Admin() {
       setError(data.error || "Failed to delete");
     }
   };
+
+  if(!authChecked){
+    return(
+      <div className="container">
+        <p>Checking access...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container">

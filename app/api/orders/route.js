@@ -1,7 +1,7 @@
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
 import User from "@/models/User";
-import { verifyToken } from "@/middleware/auth";
+import { verifyToken, verifyAdmin } from "@/middleware/auth";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +16,14 @@ export async function GET(req) {
 
     const { searchParams } = new URL(req.url);
     const viewAll = searchParams.get("all") === "true";
+    
+
+    if(viewAll){ 
+        const adminUser = verifyAdmin(req);
+        if(!adminUser) {
+            return NextResponse.json({error:"Admin acess only"},{status:403});
+        }
+    }
 
     const filter = viewAll ? {} : { user: authUser.id };
     const orders = await Order.find(filter)

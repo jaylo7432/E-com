@@ -11,23 +11,23 @@ export async function POST(req) {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return NextResponse.json({ error: "Can't find account" }, { status: 400 });
+      return NextResponse.json({ error: "ไม่พบผู้ใช้นี้" }, { status: 400 });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return NextResponse.json({ error: "incorrect Password" }, { status: 400 });
+      return NextResponse.json({ error: "รหัสผ่านไม่ถูกต้อง" }, { status: 400 });
     }
 
     const token = jwt.sign(
-      { id: user._id, email: user.email },
+      { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
     const res = NextResponse.json({
-      message: "Login successful",
-      user: { id: user._id, name: user.name, email: user.email },
+      message: "เข้าสู่ระบบสำเร็จ",
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
     });
 
     res.cookies.set("token", token, {

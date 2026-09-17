@@ -1,10 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const STATUS_OPTIONS = ["Pending", "Confirmed", "Shipped", "Completed", "Cancelled"];
 
 export default function AdminOrders() {
+  const router = useRouter();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
@@ -19,8 +21,18 @@ export default function AdminOrders() {
   };
 
   useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.loggedIn || data.user.role !== "admin") {
+          router.push("/");
+          return;
+        }
+        setAuthChecked(true);
+      });
     loadOrders();
   }, []);
+
 
   const handleStatusChange = async (orderId, newStatus) => {
     setUpdatingId(orderId);
@@ -37,6 +49,14 @@ export default function AdminOrders() {
       );
     }
   };
+
+   if (!authChecked) {
+    return (
+      <div className="container">
+        <p>Checking access...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container">

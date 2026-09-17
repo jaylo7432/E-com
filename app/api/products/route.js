@@ -1,8 +1,9 @@
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
+import { verifyAdmin } from "@/middleware/auth";
 import { verifyToken } from "@/middleware/auth";
 import { NextResponse } from "next/server";
-
+import { verify } from "node:crypto";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
@@ -31,10 +32,10 @@ export async function GET() {
 }
 
 export async function POST(req) {
-  const user = verifyToken(req);
-  if (!user) {
-    return NextResponse.json({ error: "Please Login" }, { status: 401 });
-  }
+    const user = verifyAdmin(req);
+    if (!user) {
+        return NextResponse.json({ error: "Admin access only" }, { status: 403 });
+    }
 
   await connectDB();
   const body = await req.json();

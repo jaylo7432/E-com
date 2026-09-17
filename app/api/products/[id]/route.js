@@ -1,6 +1,6 @@
 import { connectDB } from "@/lib/mongodb";
 import Product from "@/models/Product";
-import { verifyToken } from "@/middleware/auth";
+import { verifyAdmin } from "@/middleware/auth";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -15,8 +15,8 @@ export async function GET(req, { params }) {
 
 export async function PUT(req, { params }) {
   const { id } = await params;
-  const user = verifyToken(req);
-  if (!user) return NextResponse.json({ error: "please login" }, { status: 401 });
+  const user = verifyAdmin(req);
+  if (!user) return NextResponse.json({ error: "Admin access only" }, { status: 403 });
 
   await connectDB();
   const body = await req.json();
@@ -26,8 +26,8 @@ export async function PUT(req, { params }) {
 
 export async function DELETE(req, { params }) {
   const { id } = await params;
-  const user = verifyToken(req);
-  if (!user) return NextResponse.json({ error: "please login" }, { status: 401 });
+  const user = verifyAdmin(req);
+  if (!user) return NextResponse.json({ error: "Admin access only" }, { status: 403 });
 
   await connectDB();
   await Product.findByIdAndDelete(id);
