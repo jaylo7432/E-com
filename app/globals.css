@@ -174,7 +174,6 @@ body {
   object-fit: contain;
   border-radius: 10px;
   margin-bottom: 10px;
-  
 }
 
 .price {
@@ -182,6 +181,7 @@ body {
   font-weight: bold;
   margin: 8px 0;
 }
+
 .desc {
   color: #666;
   font-size: 13px;
@@ -193,7 +193,7 @@ body {
   min-height: 36px;
 }
 
-.product-card button {
+.product-card button:not(.wishlist-btn) {
   width: 100%;
   padding: 10px;
   background: #6c5ce7;
@@ -201,21 +201,16 @@ body {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: auto;
   font-weight: 600;
   transition: background 0.2s, transform 0.12s;
 }
-.product-card button {
-  margin-top: auto;
-}
 
-
-
-.product-card button:hover {
+.product-card button:not(.wishlist-btn):hover {
   background: #341f97;
 }
 
-.product-card button:active {
+.product-card button:not(.wishlist-btn):active {
   transform: scale(0.97);
 }
 
@@ -675,7 +670,6 @@ body {
 .detail-name {
   font-size: 28px;
   color: #222;
-  
 }
 
 .detail-price {
@@ -704,7 +698,6 @@ body {
     grid-template-columns: 1fr;
   }
 }
-
 
 .detail-rating {
   font-size: 14px;
@@ -972,38 +965,4 @@ body {
   font-weight: 600;
   padding: 3px 10px;
   border-radius: 20px;
-}
-
-.order-badge.status {
-  background: #fff3cd;
-  color: #b8860b;
-}
-
-.status-control {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #eee;
-}
-
-.status-control label {
-  font-size: 13px;
-  color: #666;
-  font-weight: 600;
-}
-
-.status-control select {
-  padding: 6px 12px;
-  border: 1px solid #e1e1ea;
-  border-radius: 8px;
-  font-size: 13px;
-  background: white;
-  cursor: pointer;
-}
-
-.status-saving {
-  font-size: 12px;
-  color: #0d9488;
 }

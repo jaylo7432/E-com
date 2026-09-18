@@ -30,7 +30,6 @@ export async function POST(req) {
   try {
     await Wishlist.create({ user: authUser.id, product: body.productId });
   } catch (err) {
-
     if (err.code !== 11000) {
       return NextResponse.json({ error: err.message }, { status: 500 });
     }

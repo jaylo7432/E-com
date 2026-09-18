@@ -6,6 +6,6 @@ const WishlistSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-WishlistSchema.index({user:1,product:1},{unique:true});
+WishlistSchema.index({ user: 1, product: 1 }, { unique: true });
 
-export default mongoose.models.Whislist || mongoose.model("Whislist",WishlistSchema);
+export default mongoose.models.Wishlist || mongoose.model("Wishlist", WishlistSchema);

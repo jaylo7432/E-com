@@ -6,7 +6,7 @@ import { useCart } from "@/context/CartContext";
 
 export default function Home() {
   const router = useRouter();
-  const { addToCart, totalItems,clearCartOnLogout } = useCart();
+  const { addToCart, totalItems, clearCartOnLogout } = useCart();
   const [products, setProducts] = useState([]);
   const [loggedIn, setLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState(null);
@@ -15,6 +15,7 @@ export default function Home() {
   const [category, setCategory] = useState("All");
   const [toast, setToast] = useState("");
   const [loadingProducts, setLoadingProducts] = useState(true);
+  const [wishlistIds, setWishlistIds] = useState([]);
 
   useEffect(() => {
     fetch("/api/products", { cache: "no-store" })
@@ -31,12 +32,35 @@ export default function Home() {
         setUserRole(data.loggedIn ? data.user.role : null);
         setCheckingAuth(false);
       });
+
+    fetch("/api/wishlist")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => setWishlistIds(Array.isArray(data) ? data.map((p) => p._id) : []));
   }, []);
 
   const handleAddToCart = (product) => {
     addToCart(product);
     setToast(`Added "${product.name}" to cart`);
     setTimeout(() => setToast(""), 2000);
+  };
+
+  const handleToggleWishlist = async (e, product) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const isSaved = wishlistIds.includes(product._id);
+
+    if (isSaved) {
+      await fetch(`/api/wishlist?productId=${product._id}`, { method: "DELETE" });
+      setWishlistIds((prev) => prev.filter((id) => id !== product._id));
+    } else {
+      const res = await fetch("/api/wishlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: product._id }),
+      });
+      if (res.ok) setWishlistIds((prev) => [...prev, product._id]);
+    }
   };
 
   const handleLogout = async () => {
@@ -64,19 +88,19 @@ export default function Home() {
   return (
     <div className="container">
       <nav className="navbar">
-        <h1>🛍️ My Shop</h1>
+        <Link href="/" className="logo-link">
+          <h1>🛍️ My Shop</h1>
+        </Link>
         <div>
           <Link href="/cart">🛒 Cart ({totalItems})</Link>
-          {!checkingAuth && loggedIn && (
-            <Link href="/profile">My Profile</Link>
-          )}
+          {!checkingAuth && loggedIn && <Link href="/wishlist">❤️ Wishlist</Link>}
+          {!checkingAuth && loggedIn && <Link href="/profile">My Profile</Link>}
           {!checkingAuth && loggedIn && userRole === "admin" && (
             <Link href="/admin">Manage Products</Link>
           )}
           {!checkingAuth && loggedIn && userRole === "admin" && (
             <Link href="/admin/orders">All Orders</Link>
           )}
-
           {!checkingAuth && loggedIn && (
             <button className="logout-btn" onClick={handleLogout}>
               Logout
@@ -111,19 +135,27 @@ export default function Home() {
         {!loadingProducts &&
           filteredProducts.map((p) => (
             <div className="product-card" key={p._id}>
-
-            <Link href={`/product/${p._id}`} className="product-link">
-              <img src={p.image || "https://via.placeholder.com/200"} alt={p.name} />
-              <span className="category-tag">{p.category || "General"}</span>
-              <h3>{p.name}</h3>
-              {p.reviewCount > 0 && (
-                <p className="card-rating">
-                  {"★".repeat(Math.round(p.avgRating))}
-                  {"☆".repeat(5 - Math.round(p.avgRating))} ({p.reviewCount})
-                </p>
-              )}
-              
-            </Link>
+              <Link href={`/product/${p._id}`} className="product-link">
+                <div className="image-wrapper">
+                  <img src={p.image || "https://via.placeholder.com/200"} alt={p.name} />
+                  {loggedIn && (
+                    <button
+                      className={`wishlist-btn ${wishlistIds.includes(p._id) ? "active" : ""}`}
+                      onClick={(e) => handleToggleWishlist(e, p)}
+                    >
+                      {wishlistIds.includes(p._id) ? "❤️" : "🤍"}
+                    </button>
+                  )}
+                </div>
+                <span className="category-tag">{p.category || "General"}</span>
+                <h3>{p.name}</h3>
+                {p.reviewCount > 0 && (
+                  <p className="card-rating">
+                    {"★".repeat(Math.round(p.avgRating))}
+                    {"☆".repeat(5 - Math.round(p.avgRating))} ({p.reviewCount})
+                  </p>
+                )}
+              </Link>
               <p className="price">{p.price.toLocaleString()} baht</p>
               <p className="desc">{p.description}</p>
               <button onClick={() => handleAddToCart(p)}>Add to Cart</button>
