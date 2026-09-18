@@ -10,6 +10,7 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
+  const[authChecked,setAuthChecked] = useState(false);
 
   const loadOrders = () => {
     fetch("/api/orders?all=true", { cache: "no-store" })

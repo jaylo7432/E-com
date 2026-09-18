@@ -83,7 +83,9 @@ export default function ProductDetail() {
     return (
       <div className="container">
         <nav className="navbar">
-          <h1>🛍️ My Shop</h1>
+          <Link href="/" className="logo-link">
+            <h1>🛍️ My Shop</h1>
+          </Link>
           <div>
             <Link href="/">Back to Home</Link>
           </div>
@@ -97,7 +99,9 @@ export default function ProductDetail() {
     return (
       <div className="container">
         <nav className="navbar">
-          <h1>🛍️ My Shop</h1>
+          <Link href="/" className="logo-link">
+            <h1>🛍️ My Shop</h1>
+          </Link>
           <div>
             <Link href="/">Back to Home</Link>
           </div>
@@ -117,7 +121,9 @@ export default function ProductDetail() {
   return (
     <div className="container">
       <nav className="navbar">
-        <h1>🛍️ My Shop</h1>
+        <Link href="/" className="logo-link">
+          <h1>🛍️ My Shop</h1>
+        </Link>
         <div>
           <Link href="/">Back to Home</Link>
         </div>

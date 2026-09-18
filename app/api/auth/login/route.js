@@ -11,12 +11,12 @@ export async function POST(req) {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return NextResponse.json({ error: "ไม่พบผู้ใช้นี้" }, { status: 400 });
+      return NextResponse.json({ error: "user not found" }, { status: 400 });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return NextResponse.json({ error: "รหัสผ่านไม่ถูกต้อง" }, { status: 400 });
+      return NextResponse.json({ error: "invalid password" }, { status: 400 });
     }
 
     const token = jwt.sign(
