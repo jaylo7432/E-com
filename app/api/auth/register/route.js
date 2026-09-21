@@ -2,6 +2,7 @@ import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
+import { sendMail } from "@/lib/mailer";
 
 export async function POST(req) {
   try {
@@ -19,6 +20,12 @@ export async function POST(req) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email, password: hashedPassword });
+    
+    sendMail({
+      to: user.email,
+      subject: "Welcome to my shop!",
+      html:`<h2>Hi ${user.name},</h2><p>Thanks for signing up at My Shop. Start exploring our products now!</p>`,
+    });
 
     return NextResponse.json(
       { message: "Register succesfully", user: { id: user._id, name: user.name, email: user.email } },

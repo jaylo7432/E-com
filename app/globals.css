@@ -461,7 +461,7 @@ body {
 }
 
 .edit-btn {
-  background: #7b01fe;
+  background: #1535d2;
   color: white;
   border: none;
   padding: 8px 14px;
@@ -472,7 +472,7 @@ body {
 }
 
 .edit-btn:hover {
-  background: #d9932f;
+  background: #4cd134;
 }
 
 .cancel-btn {
